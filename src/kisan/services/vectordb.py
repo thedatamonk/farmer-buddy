@@ -14,7 +14,10 @@ class VectorDBService:
 
     def __init__(self, settings: Settings):
         self.settings = settings
-        self.client = QdrantClient(url=settings.qdrant_url)
+        self.client = QdrantClient(
+            url=settings.qdrant_url,
+            api_key=settings.qdrant_api_key or None,
+        )
         self.collection_name = settings.qdrant_collection
         self._embedding_dimension = 1536  # text-embedding-3-small dimension
 
