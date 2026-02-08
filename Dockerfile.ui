@@ -1,0 +1,26 @@
+# ---- Build stage ----
+FROM python:3.11-slim AS builder
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock README.md ./
+COPY src/ src/
+RUN uv sync --frozen --no-dev
+
+COPY ui/ ui/
+
+# ---- Runtime stage ----
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY --from=builder /app/.venv .venv
+COPY --from=builder /app/ui ui
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "ui/app.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]

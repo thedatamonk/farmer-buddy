@@ -1,0 +1,11 @@
+.git
+__pycache__
+.env
+.env.local
+.venv
+tests/
+*.pyc
+node_modules
+.ruff_cache
+.deepeval/
+logs/

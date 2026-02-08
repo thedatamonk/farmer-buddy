@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: kisan-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MANDI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kisan-db
+          property: connectionString
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: QDRANT_COLLECTION
+        value: kisan_schemes
+    healthCheckPath: /health
+
+  - type: web
+    name: kisan-ui
+    runtime: docker
+    dockerfilePath: ./Dockerfile.ui
+    envVars:
+      - key: API_URL
+        value: https://kisan-api.onrender.com/api/v1
+
+databases:
+  - name: kisan-db
+    plan: starter
+    databaseName: kisan
+    user: kisan

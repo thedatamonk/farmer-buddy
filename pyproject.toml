@@ -36,6 +36,10 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "tenacity>=8.2.0",
     "pillow>=10.0.0",
+
+    # Database & Scheduling
+    "asyncpg>=0.29.0",
+    "apscheduler>=3.10.0",
 ]
 
 [project.optional-dependencies]
@@ -59,3 +63,9 @@ select = ["E", "F", "I", "N", "W", "UP"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "eval: marks tests as evaluation tests (deselect with '-m \"not eval\"')",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:importlib._bootstrap",
+]
