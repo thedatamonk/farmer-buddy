@@ -2,7 +2,7 @@ services:
   - type: web
     name: kisan-api
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: Dockerfile
     envVars:
       - key: OPENAI_API_KEY
         sync: false
@@ -21,7 +21,7 @@ services:
   - type: web
     name: kisan-ui
     runtime: docker
-    dockerfilePath: ./Dockerfile.ui
+    dockerfilePath: Dockerfile.ui
     envVars:
       - key: API_URL
         value: https://kisan-api.onrender.com/api/v1
