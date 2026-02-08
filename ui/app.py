@@ -1,5 +1,7 @@
 """Streamlit UI for Kisan Mitra chatbot."""
 
+import os
+
 import httpx
 import streamlit as st
 from components.chat import (
@@ -20,7 +22,7 @@ st.set_page_config(
 )
 
 # API endpoint
-API_URL = "http://localhost:8080/api/v1"
+API_URL = os.environ.get("API_URL", "http://localhost:8080/api/v1")
 
 
 def init_session_state():
