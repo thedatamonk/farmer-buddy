@@ -44,6 +44,12 @@ async def main():
     llm_service = LLMService(settings)
     vectordb_service = VectorDBService(settings)
 
+    # Skip indexing if collection already has data
+    info = vectordb_service.get_collection_info()
+    if info and info.get("points_count", 0) > 0:
+        print(f"Collection already has {info['points_count']} points, skipping indexing.")
+        return
+
     # Create indexer and process
     indexer = SchemeIndexer(llm_service, vectordb_service, settings)
 
