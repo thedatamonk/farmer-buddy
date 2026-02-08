@@ -1,7 +1,4 @@
 """Tests for configuration module."""
-
-
-
 from kisan.core.config import Settings, get_settings
 
 
