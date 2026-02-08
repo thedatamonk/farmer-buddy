@@ -30,6 +30,6 @@ services:
 
 databases:
   - name: kisan-db
-    plan: starter
+    plan: basic-256mb
     databaseName: kisan
     user: kisan
