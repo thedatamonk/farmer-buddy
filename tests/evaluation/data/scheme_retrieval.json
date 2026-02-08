@@ -1,0 +1,312 @@
+{
+  "description": "Evaluation dataset for scheme RAG retrieval quality. Each entry contains a natural-language query, the expected source PDF(s) that should be retrieved, expected scheme name(s) that should appear in the extracted schemes, and a category for analysis.",
+  "version": "1.0",
+  "created": "2026-02-08",
+  "sources": [
+    "PM Fasal Bima Yojana.pdf",
+    "PMKisanSamanNidhi.pdf",
+    "PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"
+  ],
+  "test_cases": [
+    {
+      "id": "pmkisan-01",
+      "query": "What is the income support amount under PM-KISAN?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "factual",
+      "ground_truth_answer": "Under PM-KISAN, a direct payment of Rs. 6000 per year is transferred in three equal installments of Rs. 2000 each every four months into the Aadhaar-seeded bank accounts of eligible landholding small and marginal farmer families."
+    },
+    {
+      "id": "pmkisan-02",
+      "query": "Who is eligible for PM-KISAN scheme?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "eligibility",
+      "ground_truth_answer": "Small and Marginal Farmer (SMF) families comprising husband, wife and minor children who collectively own cultivable land up to 2 hectares as per land records of the concerned State/UT are eligible. Certain categories of beneficiaries of higher economic strata are excluded."
+    },
+    {
+      "id": "pmkisan-03",
+      "query": "When did PM-KISAN scheme start?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "factual",
+      "ground_truth_answer": "The scheme became effective from 01.12.2018 for transfer of benefits to eligible beneficiaries. The cut-off date for determining eligibility was 01.02.2019."
+    },
+    {
+      "id": "pmkisan-04",
+      "query": "How are PM-KISAN payments transferred to farmers?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "process",
+      "ground_truth_answer": "Payments are transferred directly into the Aadhaar-seeded bank accounts of eligible farmer families. Aadhaar is mandatory for availing benefits. For the first installment, alternate prescribed documents were accepted if the beneficiary did not have Aadhaar."
+    },
+    {
+      "id": "pmkisan-05",
+      "query": "How many installments are paid under PM-KISAN and how often?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "factual",
+      "ground_truth_answer": "Three equal installments of Rs. 2000 each are paid every four months, totaling Rs. 6000 per year."
+    },
+    {
+      "id": "pmkisan-06",
+      "query": "What is the budget allocation for PM-KISAN?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "factual",
+      "ground_truth_answer": "For financial year 2018-19, the budget provision was Rs. 20,000 crore, and for 2019-20, it was Rs. 75,000 crore."
+    },
+    {
+      "id": "pmkisan-07",
+      "query": "How many farmers are expected to benefit from PM-KISAN?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "factual",
+      "ground_truth_answer": "The projected number of eligible SMF families for FY 2018-19 was 13.15 crore, with the total number of eligible beneficiaries estimated at 12.50 crore after exclusion of higher economic strata."
+    },
+    {
+      "id": "pmfby-01",
+      "query": "What are the objectives of PMFBY crop insurance scheme?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "The objectives are: to provide insurance coverage and financial support to farmers in event of crop failure due to natural calamities, pests and diseases; to stabilise farmer income; to encourage adoption of innovative and modern agricultural practices; and to ensure flow of credit to the agriculture sector."
+    },
+    {
+      "id": "pmfby-02",
+      "query": "What is the premium rate for Kharif crops under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "For Kharif season food and oilseed crops (all cereals, millets, oilseeds, pulses), the maximum insurance charges payable by the farmer are 2.0% of Sum Insured or the actuarial rate, whichever is less."
+    },
+    {
+      "id": "pmfby-03",
+      "query": "What is the premium rate for Rabi crops under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "For Rabi season food and oilseed crops (all cereals, millets, oilseeds, pulses), the maximum insurance charges payable by the farmer are 1.5% of Sum Insured or the actuarial rate, whichever is less."
+    },
+    {
+      "id": "pmfby-04",
+      "query": "Which farmers are compulsorily covered under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "eligibility",
+      "ground_truth_answer": "Enrollment is compulsory for farmers in the notified area who possess a Crop Loan account/KCC account (Loanee Farmers) to whom credit limit is sanctioned/renewed for the notified crop during the crop season. Other farmers may be included as decided by the Government from time to time."
+    },
+    {
+      "id": "pmfby-05",
+      "query": "What risks are covered under PMFBY crop insurance?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "PMFBY covers: yield losses from natural fire, lightning, storm, hailstorm, cyclone, flood, drought, pests/diseases; prevented sowing due to adverse weather (up to 25% of sum insured); post-harvest losses for up to 14 days from harvesting against cyclone/unseasonal rains; and localized calamities like hailstorm, landslide, and inundation."
+    },
+    {
+      "id": "pmfby-06",
+      "query": "What is excluded from PMFBY coverage?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "Exclusions include: war and kindred perils, nuclear risks, riots, malicious damage, theft, act of enmity, crops grazed/destroyed by domestic or wild animals, post-harvest losses for crops bundled and heaped before threshing, and other preventable risks."
+    },
+    {
+      "id": "pmfby-07",
+      "query": "How are PMFBY claims settled?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "process",
+      "ground_truth_answer": "For bank-covered farmers, the claim amount is released to the individual Nodal Banks, which credit the accounts of individual farmers and display beneficiary details on their notice board. For coverage through other intermediaries, the claim amount is released electronically to the individual insured bank account."
+    },
+    {
+      "id": "pmfby-08",
+      "query": "What is the premium for commercial and horticultural crops under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "For Kharif and Rabi annual commercial and horticultural crops, the maximum insurance charges payable by the farmer are 5% of Sum Insured or the actuarial rate, whichever is less."
+    },
+    {
+      "id": "pmfby-09",
+      "query": "What is the cut-off date for enrollment under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "process",
+      "ground_truth_answer": "The cut-off date for receipt of proposals from farmers (both loanee and non-loanee) is 31st July for Kharif and 31st December for Rabi."
+    },
+    {
+      "id": "pmfby-10",
+      "query": "How is the threshold yield calculated under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "The Threshold Yield is based on the average yield of the last seven years, excluding two years of declared calamity if any, multiplied by the level of indemnity of the area. Three levels of indemnity are available: 70%, 80%, and 90%."
+    },
+    {
+      "id": "pmfby-11",
+      "query": "Which insurance companies implement PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "Agriculture Insurance Company of India (AIC) and empanelled private companies including ICICI-Lombard, HDFC-ERGO, IFFCO-Tokio, Cholamandalam MS, Bajaj Allianz, Reliance General, Future Generali, Tata-AIG, SBI General, and Universal Sompo. The concerned State Government selects the implementing agency."
+    },
+    {
+      "id": "pmfby-12",
+      "query": "What is the unit of insurance under PMFBY?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "factual",
+      "ground_truth_answer": "The scheme is implemented on an Area Approach basis. The defined area (unit of insurance) is Village/Village Panchayat level for major crops. For other crops, it may be a unit above the Village Panchayat level. For localized calamities and post-harvest losses, the unit is the affected insured field of the individual farmer."
+    },
+    {
+      "id": "pmksy-01",
+      "query": "What is the objective of PMKSY irrigation scheme?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "The overarching vision of PMKSY is to ensure access to some means of protective irrigation for all agricultural farms in the country, to produce 'per drop more crop'. Objectives include achieving convergence of investments in irrigation, enhancing physical access of water on the farm, improving on-farm water use efficiency, and enhancing adoption of precision-irrigation technologies."
+    },
+    {
+      "id": "pmksy-02",
+      "query": "What are the main components of PMKSY?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "PMKSY has four main components: (A) Accelerated Irrigation Benefit Programme (AIBP) for completion of major and medium irrigation projects, (B) Har Khet Ko Pani for creating new water sources and distribution networks, (C) Per Drop More Crop for promoting micro-irrigation like drips and sprinklers, and (D) Watershed Development for rain water harvesting and soil/moisture conservation."
+    },
+    {
+      "id": "pmksy-03",
+      "query": "What is 'Per Drop More Crop' under PMKSY?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "Per Drop More Crop promotes efficient water conveyance and precision water application devices like drips, sprinklers, pivots, and rain-guns in the farm. It also covers construction of micro irrigation structures, secondary storage structures, water lifting devices, and extension activities for scientific moisture conservation."
+    },
+    {
+      "id": "pmksy-04",
+      "query": "What percentage of India's net sown area is irrigated?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "About 65 million hectares out of approximately 141 million hectares of net area sown is covered under irrigation, which is about 45%."
+    },
+    {
+      "id": "pmksy-05",
+      "query": "What is the motto of PMKSY?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "PMKSY has two mottos: 'Har Khet Ko Paani' (water to every farm) and 'Per Drop More Crop' (efficient water use for more productivity)."
+    },
+    {
+      "id": "pmksy-06",
+      "query": "How is PMKSY funded?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "process",
+      "ground_truth_answer": "PMKSY funds are provided to State Governments as per the pattern of Centrally Sponsored Schemes. 60% of the annual allocation is released as first installment upon receipt of SLSC minutes. The second installment requires more than 90% utilization of previous year's funds, at least 50% utilization of first installment, and a performance report."
+    },
+    {
+      "id": "pmksy-07",
+      "query": "What is the role of District Irrigation Plans in PMKSY?",
+      "expected_sources": ["PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMKSY"],
+      "category": "factual",
+      "ground_truth_answer": "District Irrigation Plans (DIPs) are the cornerstone for planning and implementation of PMKSY. They identify gaps in irrigation infrastructure, present holistic irrigation development perspective, and include mapping of existing water resources, measures to identify water risk status, new sources of water, and measures to improve water use efficiency."
+    },
+    {
+      "id": "cross-01",
+      "query": "What government schemes are available for farmers in India?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf", "PM Fasal Bima Yojana.pdf", "PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PM-KISAN", "PMFBY", "PMKSY"],
+      "category": "cross_scheme",
+      "ground_truth_answer": "Major government schemes include PM-KISAN (Rs. 6000/year income support for small and marginal farmers), PMFBY (crop insurance coverage against natural calamities, pests and diseases), and PMKSY (irrigation support with the motto 'Har Khet Ko Paani' and 'Per Drop More Crop')."
+    },
+    {
+      "id": "cross-02",
+      "query": "I am a small farmer with 1 hectare of land. Which schemes can I apply for?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf", "PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PM-KISAN", "PMFBY"],
+      "category": "cross_scheme",
+      "ground_truth_answer": "As a small farmer with 1 hectare (under 2 hectares), you are eligible for PM-KISAN which provides Rs. 6000/year in direct income support. You can also enroll in PMFBY for crop insurance at subsidized premium rates (2% for Kharif, 1.5% for Rabi food/oilseed crops)."
+    },
+    {
+      "id": "cross-03",
+      "query": "How does the government help with crop failure and irrigation?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf", "PRADHAN MANTRI KRISHI SINCHAYEE YOJANA.pdf"],
+      "expected_schemes": ["PMFBY", "PMKSY"],
+      "category": "cross_scheme",
+      "ground_truth_answer": "For crop failure, PMFBY provides insurance coverage against natural calamities, pests and diseases with subsidized premiums. For irrigation, PMKSY focuses on providing water access to all farms, promoting micro-irrigation (drip, sprinklers), and watershed development."
+    },
+    {
+      "id": "adversarial-01",
+      "query": "Tell me about PM Drone Didi Yojana for farmers",
+      "expected_sources": [],
+      "expected_schemes": [],
+      "category": "adversarial_nonexistent",
+      "ground_truth_answer": null,
+      "notes": "This scheme does not exist in the indexed documents. The system should indicate it cannot find information about this scheme."
+    },
+    {
+      "id": "adversarial-02",
+      "query": "What is the interest rate on PM-KISAN loans?",
+      "expected_sources": [],
+      "expected_schemes": [],
+      "category": "adversarial_misleading",
+      "ground_truth_answer": null,
+      "notes": "PM-KISAN is a direct benefit transfer scheme, not a loan scheme. The system should not hallucinate loan interest rates."
+    },
+    {
+      "id": "adversarial-03",
+      "query": "Is crop insurance part of the PM-KISAN scheme?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf", "PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PM-KISAN", "PMFBY"],
+      "category": "adversarial_confusion",
+      "ground_truth_answer": "No, crop insurance is not part of PM-KISAN. PM-KISAN provides direct income support of Rs. 6000/year. Crop insurance is a separate scheme called Pradhan Mantri Fasal Bima Yojana (PMFBY)."
+    },
+    {
+      "id": "adversarial-04",
+      "query": "Can I get Rs 10000 per month under PM-KISAN?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "adversarial_incorrect_amount",
+      "ground_truth_answer": "No. PM-KISAN provides Rs. 6000 per year (not per month), paid in three installments of Rs. 2000 each every four months."
+    },
+    {
+      "id": "adversarial-05",
+      "query": "Tell me about the PM Solar Pump Yojana for irrigation",
+      "expected_sources": [],
+      "expected_schemes": [],
+      "category": "adversarial_nonexistent",
+      "ground_truth_answer": null,
+      "notes": "This specific scheme is not in the indexed documents. The system may retrieve PMKSY content about water lifting devices including solar pumpsets, but should not fabricate a separate scheme."
+    },
+    {
+      "id": "adversarial-06",
+      "query": "What was the PMFBY premium rate before the scheme was revised?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "adversarial_temporal",
+      "ground_truth_answer": null,
+      "notes": "The documents describe the current PMFBY premium structure. The system should not fabricate historical premium rates that are not in the source documents."
+    },
+    {
+      "id": "adversarial-07",
+      "query": "Does PMFBY cover losses from theft of harvested crops?",
+      "expected_sources": ["PM Fasal Bima Yojana.pdf"],
+      "expected_schemes": ["PMFBY"],
+      "category": "adversarial_exclusion",
+      "ground_truth_answer": "No. Theft is explicitly excluded from PMFBY coverage. The exclusions include war, nuclear risks, riots, malicious damage, theft, act of enmity, and crops destroyed by domestic/wild animals."
+    },
+    {
+      "id": "adversarial-08",
+      "query": "Can large farmers with 100 acres get PM-KISAN benefits?",
+      "expected_sources": ["PMKisanSamanNidhi.pdf"],
+      "expected_schemes": ["PM-KISAN"],
+      "category": "adversarial_eligibility",
+      "ground_truth_answer": "No. PM-KISAN is specifically for Small and Marginal Farmer families who collectively own cultivable land up to 2 hectares. A farmer with 100 acres (approximately 40 hectares) would not be eligible."
+    }
+  ]
+}
