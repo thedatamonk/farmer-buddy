@@ -38,6 +38,7 @@ def extract_text_from_pdf(pdf_path: str | Path) -> list[dict]:
     return pages
 
 
+# TODO: Improve chunking strategy
 def chunk_text(
     text: str,
     chunk_size: int = 500,

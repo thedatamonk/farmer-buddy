@@ -1,6 +1,6 @@
 """Mandi (market) price related Pydantic schemas."""
 
-from datetime import date
+from datetime import date, datetime
 
 from pydantic import BaseModel, Field
 
@@ -27,6 +27,8 @@ class MandiPriceResult(BaseModel):
     prices: list[MandiPrice] = Field(default_factory=list, description="List of prices found")
     total_results: int = Field(default=0, description="Total number of results")
     message: str | None = Field(default=None, description="Additional message or status")
+    cache_hit: bool = Field(default=False, description="Whether result came from cache")
+    last_updated: datetime | None = Field(default=None, description="When the cached data was last fetched")
 
 
 class MandiPriceRequest(BaseModel):

@@ -2,7 +2,10 @@
 
 from functools import lru_cache
 
+from fastapi import Request
+
 from kisan.core.config import Settings, get_settings
+from kisan.modules.mandi.repository import MandiPriceRepository
 from kisan.services.llm import LLMService
 from kisan.services.session import SessionManager
 from kisan.services.vectordb import VectorDBService
@@ -32,3 +35,8 @@ def get_vectordb_service() -> VectorDBService:
 def get_settings_dep() -> Settings:
     """Get settings dependency."""
     return get_settings()
+
+
+def get_mandi_repository(request: Request) -> MandiPriceRepository | None:
+    """Get mandi repository from app state."""
+    return getattr(request.app.state, "mandi_repository", None)

@@ -1,10 +1,11 @@
 """Chat API endpoints."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from kisan.agent.orchestrator import AgentOrchestrator
 from kisan.api.dependencies import (
     get_llm_service,
+    get_mandi_repository,
     get_session_manager,
     get_vectordb_service,
 )
@@ -19,12 +20,16 @@ router = APIRouter()
 
 
 def get_orchestrator(
+    request: Request,
     llm_service: LLMService = Depends(get_llm_service),
     session_manager: SessionManager = Depends(get_session_manager),
     vectordb_service: VectorDBService = Depends(get_vectordb_service),
 ) -> AgentOrchestrator:
     """Get agent orchestrator instance."""
-    return AgentOrchestrator(llm_service, session_manager, vectordb_service)
+    mandi_repository = get_mandi_repository(request)
+    return AgentOrchestrator(
+        llm_service, session_manager, vectordb_service, mandi_repository=mandi_repository
+    )
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -33,7 +38,7 @@ async def chat(
     orchestrator: AgentOrchestrator = Depends(get_orchestrator),
 ) -> ChatResponse:
     """Process a chat message and return a response.
-
+-
     Optionally include a base64-encoded image for disease detection.
     """
     has_image = request.image is not None

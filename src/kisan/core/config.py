@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     mandi_api_url: str = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
     mandi_api_key: str = ""
 
+    # PostgreSQL Database
+    database_url: str = ""
+
+    # Mandi Cache Settings
+    mandi_cache_ttl_hours: int = 24
+    mandi_fetch_interval_hours: int = 6
+
     # Application
     log_level: str = "INFO"
     debug: bool = False

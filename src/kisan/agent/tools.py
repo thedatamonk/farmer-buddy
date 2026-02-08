@@ -1,6 +1,8 @@
 """Tool definitions for the Kisan agent."""
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from kisan.core.config import Settings, get_settings
 from kisan.core.exceptions import MandiAPIError, RetrievalError, ToolExecutionError, VisionError
@@ -10,6 +12,9 @@ from kisan.modules.mandi.client import MandiClient
 from kisan.modules.schemes.retriever import SchemeRetriever
 from kisan.services.llm import LLMService
 from kisan.services.vectordb import VectorDBService
+
+if TYPE_CHECKING:
+    from kisan.modules.mandi.repository import MandiPriceRepository
 
 # Tool definitions for OpenAI function calling
 TOOL_DEFINITIONS = [
@@ -92,6 +97,7 @@ class ToolExecutor:
         llm_service: LLMService,
         vectordb_service: VectorDBService,
         settings: Settings | None = None,
+        mandi_repository: MandiPriceRepository | None = None,
     ):
         self.settings = settings or get_settings()
         self.llm = llm_service
@@ -99,7 +105,7 @@ class ToolExecutor:
 
         # Initialize tool handlers
         self.disease_detector = DiseaseDetector(llm_service, self.settings)
-        self.mandi_client = MandiClient(self.settings)
+        self.mandi_client = MandiClient(self.settings, repository=mandi_repository)
         self.scheme_retriever = SchemeRetriever(
             llm_service, vectordb_service, self.settings
         )

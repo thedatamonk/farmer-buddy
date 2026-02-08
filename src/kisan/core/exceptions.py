@@ -52,6 +52,12 @@ class MandiAPIError(KisanError):
     pass
 
 
+class DatabaseError(KisanError):
+    """Error related to database operations."""
+
+    pass
+
+
 class SessionError(KisanError):
     """Error related to session management."""
 

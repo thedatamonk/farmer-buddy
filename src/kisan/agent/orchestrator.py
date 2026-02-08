@@ -1,8 +1,10 @@
 """ReAct-style agent orchestrator."""
 
+from __future__ import annotations
+
 import json
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from kisan.agent.prompts import FALLBACK_RESPONSE, SYSTEM_PROMPT
 from kisan.agent.tools import TOOL_DEFINITIONS, ToolExecutor
@@ -14,6 +16,9 @@ from kisan.services.llm import LLMService
 from kisan.services.session import SessionManager
 from kisan.services.vectordb import VectorDBService
 
+if TYPE_CHECKING:
+    from kisan.modules.mandi.repository import MandiPriceRepository
+
 
 class AgentOrchestrator:
     """ReAct-style agent that routes queries to appropriate tools."""
@@ -24,11 +29,14 @@ class AgentOrchestrator:
         session_manager: SessionManager,
         vectordb_service: VectorDBService,
         settings: Settings | None = None,
+        mandi_repository: MandiPriceRepository | None = None,
     ):
         self.settings = settings or get_settings()
         self.llm = llm_service
         self.sessions = session_manager
-        self.tool_executor = ToolExecutor(llm_service, vectordb_service, self.settings)
+        self.tool_executor = ToolExecutor(
+            llm_service, vectordb_service, self.settings, mandi_repository
+        )
         self.max_tool_iterations = 3
 
     async def process_message(
@@ -108,7 +116,7 @@ class AgentOrchestrator:
         image_base64: str | None,
     ) -> list[dict[str, Any]]:
         """Build messages list for LLM API call."""
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        messages: list[dict[str, Any]] = [{"role": "system", "content": SYSTEM_PROMPT}]
 
         # Add conversation history
         history = self.sessions.get_messages_for_llm(session_id)
