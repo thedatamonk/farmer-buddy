@@ -2,7 +2,6 @@
 
 import httpx
 import streamlit as st
-
 from components.chat import (
     display_chat_history,
     display_chat_message,

@@ -59,7 +59,7 @@ async def main():
     print(f"Success: {result.success}")
 
     if result.errors:
-        print(f"\nErrors encountered:")
+        print("\nErrors encountered:")
         for error in result.errors:
             print(f"  - {error}")
 
