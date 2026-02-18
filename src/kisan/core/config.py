@@ -40,9 +40,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     debug: bool = False
 
-    # RAG Settings
-    chunk_size: int = 500
-    chunk_overlap: int = 50
+    # RAG Settings (token-based, not character-based)
+    chunk_size: int = 512
+    chunk_overlap: int = 64
     top_k_results: int = 5
 
     # Session

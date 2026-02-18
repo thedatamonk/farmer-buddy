@@ -31,14 +31,18 @@ class LLMService:
         max_tokens: int | None = None,
         tools: list[dict] | None = None,
         tool_choice: str | dict | None = None,
+        model: str | None = None,
+        response_format: dict | None = None,
     ) -> dict:
         """Send a chat completion request."""
         try:
             kwargs = {
-                "model": self.chat_model,
+                "model": model or self.chat_model,
                 "messages": messages,
                 "temperature": temperature,
             }
+            if response_format:
+                kwargs["response_format"] = response_format
             if max_tokens:
                 kwargs["max_tokens"] = max_tokens
             if tools:

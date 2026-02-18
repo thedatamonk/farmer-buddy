@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Script to index government scheme PDF documents."""
 
+import argparse
 import asyncio
 import sys
 from pathlib import Path
@@ -17,6 +18,12 @@ from kisan.services.vectordb import VectorDBService
 
 async def main():
     """Index all PDFs in the data/schemes directory."""
+    parser = argparse.ArgumentParser(description="Index scheme PDFs")
+    parser.add_argument(
+        "--force", action="store_true", help="Re-index all PDFs, replacing existing chunks"
+    )
+    args = parser.parse_args()
+
     setup_logging()
 
     settings = get_settings()
@@ -36,37 +43,52 @@ async def main():
         print("Please add PDF documents about government schemes to index.")
         sys.exit(0)
 
-    print(f"Found {len(pdf_files)} PDF files to index:")
+    print(f"Found {len(pdf_files)} PDF files:")
     for pdf in pdf_files:
         print(f"  - {pdf.name}")
+
+    if args.force:
+        print("\n--force flag set: will re-index all PDFs")
 
     # Initialize services
     llm_service = LLMService(settings)
     vectordb_service = VectorDBService(settings)
+    vectordb_service.ensure_collection()
 
-    # Skip indexing if collection already has data
-    info = vectordb_service.get_collection_info()
-    if info and info.get("points_count", 0) > 0:
-        print(f"Collection already has {info['points_count']} points, skipping indexing.")
-        return
-
-    # Create indexer and process
+    # Create indexer and process per-PDF
     indexer = SchemeIndexer(llm_service, vectordb_service, settings)
 
-    print("\nIndexing documents...")
-    result = await indexer.index_directory(schemes_dir)
+    total_chunks = 0
+    indexed_count = 0
+    skipped_count = 0
+    errors = []
+
+    print("\nProcessing documents...")
+    for pdf in pdf_files:
+        existing = vectordb_service.count_by_source(pdf.name)
+        if existing > 0 and not args.force:
+            print(f"  Skipping {pdf.name} ({existing} chunks already indexed)")
+            skipped_count += 1
+            continue
+
+        action = "Re-indexing" if existing > 0 else "Indexing"
+        print(f"  {action} {pdf.name}...")
+        result = await indexer.index_pdf(pdf)
+        total_chunks += result.chunks_created
+        indexed_count += 1
+        errors.extend(result.errors)
 
     print(f"\n{'='*50}")
     print("Indexing Complete!")
     print(f"{'='*50}")
-    print(f"Documents processed: {result.documents_processed}")
-    print(f"Chunks created: {result.chunks_created}")
-    print(f"Collection: {result.collection_name}")
-    print(f"Success: {result.success}")
+    print(f"PDFs indexed: {indexed_count}")
+    print(f"PDFs skipped: {skipped_count}")
+    print(f"Chunks created: {total_chunks}")
+    print(f"Collection: {settings.qdrant_collection}")
 
-    if result.errors:
+    if errors:
         print("\nErrors encountered:")
-        for error in result.errors:
+        for error in errors:
             print(f"  - {error}")
 
 

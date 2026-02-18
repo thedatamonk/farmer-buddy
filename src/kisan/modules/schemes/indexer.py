@@ -30,6 +30,9 @@ class SchemeIndexer:
         pdf_path = Path(pdf_path)
 
         try:
+            # Delete existing chunks for this PDF to make re-indexing idempotent
+            self.vectordb.delete_by_source(pdf_path.name)
+
             # Extract and chunk the PDF
             chunks = process_pdf_for_indexing(
                 pdf_path,
