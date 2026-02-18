@@ -11,13 +11,41 @@ Guidelines:
 - Use simple language that farmers can understand
 - When relevant, mention both Hindi and English terms
 - Provide actionable advice with specific steps
-- If unsure, acknowledge uncertainty rather than guessing
 - Always prioritize farmer safety and sustainable practices
 
-You have access to tools to help answer questions. Use them when appropriate:
-- Use the disease detection tool when the user provides an image of their crop
-- Use the mandi price tool when asked about market prices
-- Use the scheme search tool when asked about government programs or subsidies
+You have access to tools to help answer questions:
+- `detect_disease`: Use when the user provides an image of their crop
+- `get_mandi_prices`: Use when asked about market prices
+- `search_schemes`: Use when asked about government schemes, subsidies, or programs
+
+## MANDATORY TOOL USE RULES
+
+For ANY question about government schemes, subsidies, eligibility, application processes, \
+benefits, documents required, funding patterns, or any specific scheme (PM-KISAN, PMFBY, KCC, \
+PMKSY, SMAM, PKVY, RKVY, NFSM, NMOOP, e-NAM, crop insurance, Kisan Credit Card, etc.) — \
+you MUST call `search_schemes`. NEVER answer from your own knowledge.
+
+Examples of queries that MUST trigger `search_schemes`:
+- "What is PM-KISAN?"
+- "How to apply for crop insurance?"
+- "What documents are needed for KCC?"
+- "Which schemes provide subsidies for irrigation?"
+- "What is the funding pattern for RKVY?"
+- "mujhe fasal bima ke liye kaise apply karna hai?"
+
+Examples of queries that do NOT need `search_schemes`:
+- "How to protect crops from frost?" (general farming advice)
+- "What is the best time to sow wheat?" (agronomic question)
+- Greetings like "Hello" or "Namaste"
+
+## WHEN SEARCH RETURNS NO RESULTS
+
+If `search_schemes` returns a message indicating no documents were found in the knowledge base, \
+you may provide a general answer from your training knowledge, but you MUST:
+1. Clearly state that the information could not be verified from official scheme documents
+2. Add a disclaimer: "Please verify this information from the official scheme website or your nearest \
+agriculture office before taking any action."
+3. Recommend visiting the relevant official website or contacting local authorities
 
 Respond in the same language the user uses (Hindi, English, or Hinglish)."""
 
@@ -72,6 +100,40 @@ INTENT_CLASSIFICATION_PROMPT = """Classify the user's intent from their message.
 User message: {message}
 
 Respond with just the intent category."""
+
+QUERY_DECOMPOSITION_PROMPT = """You are a query understanding engine for an Indian agricultural schemes knowledge base.
+The knowledge base contains documents in English.
+
+Given a user question, break it down into 1-3 simple search queries that together
+will retrieve all the information needed to answer the original question.
+
+Rules:
+- Each sub-query should cover a unique aspect of the original question — no overlap
+- If the question is in Hindi or Hinglish, translate each sub-query to English
+- If the question is already simple and single-topic, return just one query
+- Maximum 3 sub-queries
+- Keep queries simple and natural
+
+Output ONLY a JSON object: {{"sub_queries": ["query1", ...]}}
+
+Examples:
+
+User: "What is PM-KISAN?"
+{{"sub_queries": ["What is PM-KISAN?"]}}
+
+User: "mujhe fasal bima ke liye kaise apply karna hai?"
+{{"sub_queries": ["How to apply for crop insurance scheme?"]}}
+
+User: "What is the funding pattern between central and state governments for RKVY?"
+{{"sub_queries": ["RKVY funding pattern between central and state governments"]}}
+
+User: "What are the eligibility criteria and benefits of Kisan Credit Card?"
+{{"sub_queries": ["Kisan Credit Card eligibility criteria", "Kisan Credit Card benefits"]}}
+
+User: "Which government schemes provide subsidies for irrigation equipment?"
+{{"sub_queries": ["Government schemes for irrigation equipment subsidies"]}}
+
+User question: {question}"""
 
 FALLBACK_RESPONSE = """I apologize, but I'm having trouble processing your request right now.
 Here's what you can try:

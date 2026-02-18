@@ -71,8 +71,12 @@ TOOL_DEFINITIONS = [
         "function": {
             "name": "search_schemes",
             "description": (
-                "Search for government agricultural schemes and subsidies. "
-                "Use for PM-KISAN, crop insurance, or government program questions."
+                "Search the knowledge base for government agricultural schemes and subsidies. "
+                "This is the ONLY source of truth for scheme information. "
+                "MUST be called for ANY question about: PM-KISAN, PMFBY, KCC, PMKSY, SMAM, "
+                "PKVY, RKVY, NFSM, NMOOP, e-NAM, crop insurance, Kisan Credit Card, "
+                "eligibility criteria, benefits, application process, documents required, "
+                "subsidies, funding patterns, or any government agricultural program."
             ),
             "parameters": {
                 "type": "object",
@@ -240,11 +244,13 @@ class ToolExecutor:
         try:
             result = await self.scheme_retriever.query(query)
 
-            if not result.answer:
+            if not result.documents or not result.answer:
                 return (
-                    "I couldn't find specific information about this. "
-                    "Try asking about specific schemes like PM-KISAN, PMFBY, "
-                    "Kisan Credit Card, or crop insurance."
+                    "[NO_DOCUMENTS_FOUND] The knowledge base does not contain verified "
+                    "information for this query. You may answer from your general knowledge "
+                    "but MUST add a clear disclaimer that this information is not verified "
+                    "from official scheme documents and recommend the user verify from the "
+                    "official scheme website or their nearest agriculture office."
                 )
 
             output = [result.answer]

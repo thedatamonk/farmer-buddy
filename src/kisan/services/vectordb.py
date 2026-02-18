@@ -1,5 +1,7 @@
 """Qdrant vector database service."""
 
+import uuid
+
 from qdrant_client import QdrantClient
 from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.models import (
@@ -91,21 +93,13 @@ class VectorDBService:
             self.ensure_collection()
 
             if ids is None:
-                # Generate integer IDs based on current count
-                current_count = self.client.count(self.collection_name).count
-                ids = [current_count + i for i in range(len(embeddings))]
-
-            # Convert string IDs to integers if they are numeric strings
-            processed_ids = []
-            for idx in ids:
-                if isinstance(idx, str) and idx.isdigit():
-                    processed_ids.append(int(idx))
-                elif isinstance(idx, int):
-                    processed_ids.append(idx)
-                else:
-                    # Use UUID for non-numeric string IDs
-                    import uuid
-                    processed_ids.append(str(uuid.uuid5(uuid.NAMESPACE_DNS, str(idx))))
+                # Generate deterministic UUID5 IDs from source + chunk_index
+                # to avoid collisions across PDFs when delete_by_source resets counts
+                ids = []
+                for i, doc in enumerate(documents):
+                    source = doc.get("source", "unknown")
+                    chunk_index = doc.get("chunk_index", i)
+                    ids.append(str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{source}:{chunk_index}")))
 
             points = [
                 PointStruct(
@@ -113,7 +107,7 @@ class VectorDBService:
                     vector=embedding,
                     payload=doc,
                 )
-                for idx, embedding, doc in zip(processed_ids, embeddings, documents)
+                for idx, embedding, doc in zip(ids, embeddings, documents)
             ]
 
             self.client.upsert(
@@ -232,7 +226,7 @@ class VectorDBService:
             info = self.client.get_collection(self.collection_name)
             return {
                 "name": self.collection_name,
-                "vectors_count": info.vectors_count,
+                "vectors_count": info.indexed_vectors_count,
                 "points_count": info.points_count,
             }
         except UnexpectedResponse:
