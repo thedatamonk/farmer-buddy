@@ -1,131 +1,217 @@
-## 1. Core Components
+<div align="center">
 
-### A. Web Chat Interface
+# Project Kisan
 
-**Purpose:**
-Primary interaction layer where farmers communicate with the chatbot.
+**AI-powered agricultural assistant for Indian farmers**
 
-**Responsibilities:**
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109%2B-009688.svg)](https://fastapi.tiangolo.com/)
+[![GPT-4o](https://img.shields.io/badge/LLM-GPT--4o-412991.svg)](https://openai.com/)
+[![Qdrant](https://img.shields.io/badge/Vector_DB-Qdrant-dc244c.svg)](https://qdrant.tech/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-* Accept user text queries
-* Accept image uploads for disease diagnosis
-* Display chatbot responses in conversational format
-* Maintain session level conversation context
+</div>
 
-### B. Backend API Layer
+Bilingual AI chatbot helping Indian farmers with disease detection, mandi prices, and government schemes. Supports English, Hindi, and Hinglish through a conversational interface powered by a ReAct agent.
 
-**Purpose:**
-Acts as the central entry point for all user interactions and system orchestration.
+## Features
 
-**Responsibilities:**
+| Disease Detection | Mandi Prices | Government Schemes |
+|:-:|:-:|:-:|
+| Upload a crop photo and get diagnosis with treatment recommendations | Ask for real-time market prices by commodity and location | Ask about eligibility, benefits, and application steps for agricultural schemes |
+| Powered by GPT-4o vision | Powered by data.gov.in API | Powered by RAG over scheme PDFs with Qdrant |
 
-* Receive requests from the web chat
-* Manage session state and conversation history
-* Route user queries to the agent orchestration layer
-* Return final responses to UI
-* Handle logging and error handling
+## Architecture
 
-### C. Agent Orchestrator (Conversation Brain)
+```mermaid
+graph LR
+    UI[Streamlit UI] --> API[FastAPI Backend]
+    API --> Agent[ReAct Agent Orchestrator]
+    Agent --> Disease[Disease Detector<br/>GPT-4o Vision]
+    Agent --> Mandi[Mandi Price Tool<br/>data.gov.in API]
+    Agent --> Schemes[Scheme Retriever<br/>Qdrant RAG]
+    Schemes --> Qdrant[(Qdrant)]
+    Mandi --> DataGov[(data.gov.in)]
+    Disease --> OpenAI[(OpenAI API)]
+```
 
-**Purpose:**
-Determines user intent and dynamically selects the correct tool or capability.
+## Quick Start
 
-**Responsibilities:**
+### Prerequisites
 
-* Understand user queries using LLM reasoning
-* Decide when to call disease detection, mandi price retrieval, or scheme retrieval
-* Combine tool outputs into farmer-friendly responses
-* Maintain conversation continuity across multiple turns
+- [Python 3.11+](https://www.python.org/downloads/)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
+- [Docker](https://docs.docker.com/get-started/get-docker/) (for running Qdrant locally)
+- [OpenAI API key](https://platform.openai.com/api-keys) (requires an OpenAI account)
 
-### D. Disease Detection Module
+### 1. Install dependencies
 
-**Purpose:**
-Identify crop diseases from images and provide treatment recommendations.
+```bash
+git clone https://github.com/<your-org>/project-kisan.git
+cd project-kisan
+uv sync
+```
 
-**Responsibilities:**
+### 2. Configure environment
 
-* Accept farmer uploaded crop images
-* Use multimodal LLMs to detect diseases
-* Generate treatment plans including pesticide suggestions
-* Provide preventive care recommendations
-* Add safety disclaimers and uncertainty handling
+```bash
+cp .env.example .env
+# Edit .env and set:
+#   OPENAI_API_KEY=sk-...
+#   MANDI_API_KEY=...       (optional, for live mandi prices)
+```
 
-### E. Mandi Price Retrieval Module
+### 3. Start Qdrant
 
-**Purpose:**
-Provide real-time region-specific crop price information.
+```bash
+docker run -d -p 6333:6333 qdrant/qdrant
+```
 
-**Responsibilities:**
+### 4. Index government scheme documents
 
-* Extract crop and location details from user query
-* Fetch mandi prices from external agricultural market APIs
-* Format and present price insights in simple language
-* Handle API failures or missing data gracefully
+```bash
+# Place PDF files in data/schemes/, then:
+uv run python scripts/index_schemes.py
+```
 
-### F. Government Scheme Retrieval Module (RAG)
+> **Note:** Scheme PDFs are not included in the repository. You must supply your own PDF documents in `data/schemes/` before indexing.
 
-**Purpose:**
-Help farmers understand agricultural government schemes.
+### 5. Run the API server
 
-**Responsibilities:**
+```bash
+uv run uvicorn kisan.api.main:app --reload --port 8080
+```
 
-* Process and index scheme PDF documents
-* Retrieve relevant scheme information based on user questions
-* Summarize eligibility, benefits, and application steps
-* Provide simplified explanations suitable for farmers
+### 6. Launch the Streamlit UI
 
-### G. Evaluation and Observability Layer
+```bash
+streamlit run ui/app.py
+```
 
-**Purpose:**
-Measure response quality and monitor system behavior.
+## API Reference
 
-**Responsibilities:**
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/v1/chat` | Send a message (text and/or image) |
+| `GET` | `/api/v1/sessions/{session_id}` | Get conversation history |
+| `DELETE` | `/api/v1/sessions/{session_id}` | Delete a session |
 
-* Evaluate LLM outputs using automated evaluation frameworks
-* Track tool selection accuracy
-* Measure response correctness and factual grounding
-* Log conversations, tool calls, and latency metrics
+Interactive docs available at [http://localhost:8080/docs](http://localhost:8080/docs) when the server is running.
 
-## 2. Tech Stack
+## Project Structure
 
-### Programming Language
+```
+src/kisan/
+├── agent/                  # ReAct agent orchestrator
+│   ├── orchestrator.py     #   Agent loop & tool dispatch
+│   ├── prompts.py          #   System prompts
+│   ├── memory.py           #   Conversation memory
+│   └── tools.py            #   Tool definitions
+├── api/                    # FastAPI application
+│   ├── main.py             #   App entrypoint & lifespan
+│   ├── dependencies.py     #   Dependency injection
+│   └── routes/             #   Route handlers (chat, health)
+├── core/                   # Shared configuration
+│   ├── config.py           #   Settings (pydantic-settings)
+│   ├── exceptions.py       #   Custom exceptions
+│   └── logging.py          #   Loguru setup
+├── modules/                # Feature modules
+│   ├── disease/            #   GPT-4o vision disease detector
+│   ├── mandi/              #   Mandi price client, parser, scheduler
+│   └── schemes/            #   Scheme RAG (embeddings, indexer, retriever)
+├── schemas/                # Pydantic models (chat, disease, mandi, scheme)
+├── services/               # Infrastructure services (LLM, session, vectordb, database)
+└── utils/                  # Utilities (PDF processing)
+```
 
-* Python
+## Deployment
 
-### Dependency Management
+<details>
+<summary><strong>Docker</strong></summary>
 
-* uv
+Build and run the API container:
 
-### Backend Framework
+```bash
+docker build -t kisan-api .
+docker run -p 8080:8080 \
+  -e OPENAI_API_KEY=sk-... \
+  -e QDRANT_URL=http://host.docker.internal:6333 \
+  kisan-api
+```
 
-* FastAPI
+Build and run the UI container:
 
-### LLM and Multimodal Processing
+```bash
+docker build -f Dockerfile.ui -t kisan-ui .
+docker run -p 8501:8501 \
+  -e API_URL=http://host.docker.internal:8080/api/v1 \
+  kisan-ui
+```
 
-* OpenAI multimodal models (for text + image understanding)
-* OpenAI embeddings (for retrieval tasks)
+</details>
 
-### Retrieval Augmented Generation
+<details>
+<summary><strong>Render</strong></summary>
 
-* Qdrant for vector database and similarity search
-* PDF text extraction using PyMuPDF or equivalent libraries
+The project includes a `render.yaml` Blueprint for one-click deployment.
 
-### External Data Integration
+| Service | Type | Plan |
+|---------|------|------|
+| `kisan-api` | Web Service (Docker) | Free |
+| `kisan-ui` | Web Service (Docker) | Free |
+| `kisan-db` | PostgreSQL | Free |
 
-* Indian agriculture market APIs (e.g., Agmarknet / data.gov.in datasets)
+Required environment variables on Render:
 
-### Evaluation Framework
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | OpenAI API key |
+| `MANDI_API_KEY` | data.gov.in API key (optional) |
+| `QDRANT_URL` | Qdrant Cloud instance URL |
+| `QDRANT_API_KEY` | Qdrant Cloud API key |
+| `QDRANT_COLLECTION` | Qdrant collection name |
+| `DATABASE_URL` | Auto-set from `kisan-db` |
 
-* DeepEval
+</details>
 
-### Web Interface
+## Testing
 
-* Streamlit (for rapid MVP development)
+The project has a 4-phase test strategy: deterministic unit tests, retrieval quality evaluation, generator quality evaluation, and end-to-end agent evaluation.
 
-### Logging and Monitoring
+```bash
+# Run unit + integration tests (no external services needed)
+uv run pytest tests/unit/ tests/integration/ -v
 
-* Using Python loguru package
+# Run all evaluation tests (requires Qdrant + OpenAI key)
+uv run pytest tests/evaluation/ -m eval -v -s
 
-### Deployment
+# Run everything
+uv run pytest tests/ -v
+```
 
-* Lightweight cloud hosting platforms for Render
+See [TESTING.md](TESTING.md) for the full testing and evaluation guide.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Language | [Python 3.11+](https://www.python.org/) |
+| Package Manager | [uv](https://docs.astral.sh/uv/) |
+| Web Framework | [FastAPI](https://fastapi.tiangolo.com/) |
+| UI | [Streamlit](https://streamlit.io/) |
+| LLM | [OpenAI GPT-4o](https://platform.openai.com/docs/) (text + vision) |
+| Embeddings | [OpenAI Embeddings](https://platform.openai.com/docs/guides/embeddings) |
+| Vector Database | [Qdrant](https://qdrant.tech/) |
+| PDF Processing | [PyMuPDF](https://pymupdf.readthedocs.io/) |
+| Market Data | [data.gov.in API](https://data.gov.in/) |
+| Evaluation | [DeepEval](https://docs.confident-ai.com/) |
+| Database | [PostgreSQL](https://www.postgresql.org/) ([asyncpg](https://magicstack.github.io/asyncpg/)) |
+| Scheduling | [APScheduler](https://apscheduler.readthedocs.io/) |
+| Logging | [Loguru](https://loguru.readthedocs.io/) |
+| Linting | [Ruff](https://docs.astral.sh/ruff/) |
+| Deployment | [Render](https://render.com/) / [Docker](https://www.docker.com/) |
+
+## License
+
+MIT
