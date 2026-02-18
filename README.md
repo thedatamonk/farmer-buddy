@@ -47,8 +47,8 @@ graph LR
 ### 1. Install dependencies
 
 ```bash
-git clone https://github.com/<your-org>/project-kisan.git
-cd project-kisan
+git clone https://github.com/thedatamonk/farmer-buddy.git
+cd farmer-buddy
 uv sync
 ```
 
@@ -84,8 +84,10 @@ uv run uvicorn kisan.api.main:app --reload --port 8080
 
 ### 6. Launch the Streamlit UI
 
+From a new terminal window
+
 ```bash
-streamlit run ui/app.py
+uv run streamlit run ui/app.py
 ```
 
 ## API Reference
@@ -154,6 +156,19 @@ docker run -p 8501:8501 \
 <details>
 <summary><strong>Render</strong></summary>
 
+#### 1. Set up Qdrant Cloud
+
+Create a free cluster at [Qdrant Cloud](https://cloud.qdrant.io/):
+
+1. Sign up / log in at [cloud.qdrant.io](https://cloud.qdrant.io/)
+2. Create a new **Free Tier** cluster (choose the region closest to your Render services)
+3. Note your **Cluster URL** (e.g. `https://abc-123.us-east4-0.gcp.cloud.qdrant.io`)
+4. Generate an **API key** from the cluster dashboard
+
+You'll use these values for `QDRANT_URL` and `QDRANT_API_KEY` in the steps below.
+
+#### 2. Deploy on Render
+
 The project includes a `render.yaml` Blueprint for one-click deployment.
 
 | Service | Type | Plan |
@@ -168,10 +183,29 @@ Required environment variables on Render:
 |----------|-------------|
 | `OPENAI_API_KEY` | OpenAI API key |
 | `MANDI_API_KEY` | data.gov.in API key (optional) |
-| `QDRANT_URL` | Qdrant Cloud instance URL |
+| `QDRANT_URL` | Qdrant Cloud cluster URL |
 | `QDRANT_API_KEY` | Qdrant Cloud API key |
-| `QDRANT_COLLECTION` | Qdrant collection name |
+| `QDRANT_COLLECTION` | Qdrant collection name (e.g. `kisan_schemes`) |
 | `DATABASE_URL` | Auto-set from `kisan-db` |
+
+#### 3. Index scheme documents
+
+The deployed API queries Qdrant Cloud but does not run indexing itself. Run the indexing script from your local machine, pointed at your Qdrant Cloud instance:
+
+```bash
+# 1. Place scheme PDFs in data/schemes/
+ls data/schemes/
+#    scheme1.pdf  scheme2.pdf  ...
+
+# 2. Run the indexer against Qdrant Cloud
+OPENAI_API_KEY="sk-..." \
+QDRANT_URL="https://your-cluster.cloud.qdrant.io" \
+QDRANT_API_KEY="your-qdrant-cloud-api-key" \
+QDRANT_COLLECTION="kisan_schemes" \
+uv run python scripts/index_schemes.py
+```
+
+Use the same `QDRANT_URL`, `QDRANT_API_KEY`, and `QDRANT_COLLECTION` values you configured on Render. The script generates embeddings via OpenAI and uploads them directly to Qdrant Cloud. Once complete, the deployed app can serve scheme queries immediately.
 
 </details>
 
