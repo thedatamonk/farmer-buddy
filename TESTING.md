@@ -11,10 +11,10 @@ Project Kisan uses a **4-phase testing strategy** that moves from fast, free, de
 
 ```mermaid
 graph TD
-    P1[Phase 1: Deterministic<br/>138 tests · Free · CI-safe]
-    P2[Phase 2: Retrieval Quality<br/>8 test classes · ~$0.05/run]
-    P3[Phase 3: Generator Quality<br/>6 test classes · ~$0.87/run]
-    P4[Phase 4: E2E Agent<br/>7 test classes · ~$0.90/run]
+    P1[Phase 1: Deterministic<br/>Free · CI-safe]
+    P2[Phase 2: Retrieval Quality]
+    P3[Phase 3: Generator Quality]
+    P4[Phase 4: E2E Agent]
 
     P1 --> P2
     P2 --> P3
@@ -28,12 +28,12 @@ graph TD
 
 ## Summary
 
-| Phase | Directory | Key Files | Tests | Services Needed | Cost |
-|-------|-----------|-----------|-------|-----------------|------|
-| 1 — Deterministic | `tests/unit/`, `tests/integration/` | 9 unit + 2 integration files | 138 | None | Free |
-| 2 — Retrieval Quality | `tests/evaluation/` | `test_scheme_retrieval.py` | 8 | Qdrant, OpenAI | ~$0.05 |
-| 3 — Generator Quality | `tests/evaluation/` | `test_scheme_generation.py` | 6 | Qdrant, OpenAI | ~$0.87 |
-| 4 — E2E Agent | `tests/evaluation/` | `test_agent_e2e.py` | 7 | Qdrant, OpenAI | ~$0.90 |
+| Phase | Directory | Key Files | Services Needed |
+|-------|-----------|-----------|-----------------|
+| 1 — Deterministic | `tests/unit/`, `tests/integration/` | 9 unit + 2 integration files | None |
+| 2 — Retrieval Quality | `tests/evaluation/` | `test_scheme_retrieval.py` | Qdrant, OpenAI |
+| 3 — Generator Quality | `tests/evaluation/` | `test_scheme_generation.py` | Qdrant, OpenAI |
+| 4 — E2E Agent | `tests/evaluation/` | `test_agent_e2e.py` | Qdrant, OpenAI |
 
 ## Prerequisites
 
@@ -67,17 +67,17 @@ export OPENAI_API_KEY="sk-..."
 
 ### Unit Tests
 
-| Test File | What It Covers | Tests |
-|-----------|---------------|-------|
-| `test_tool_selection.py` | Tool definition structure, dispatch routing, error wrapping | 13 |
-| `test_mandi_entity_extraction.py` | Mandi argument handling, output formatting, edge cases | 10 |
-| `test_disease_parsing.py` | Parsing mock [GPT-4o](https://platform.openai.com/docs/models) responses into `DiseaseDetectionResult` | 37 |
-| `test_schemas.py` | [Pydantic](https://docs.pydantic.dev/) schema validation across all subsystems | 20 |
-| `test_config.py` | Settings defaults, env overrides, caching | 2 |
-| `test_pdf.py` | PDF text chunking (empty, small, overlap, sentence boundaries) | 5 |
-| `test_session.py` | Session CRUD, message trimming, LLM message formatting | 10 |
-| `test_mandi_repository.py` | Mandi price repository (upsert, filter, freshness, cleanup) | 16 |
-| `test_mandi_scheduler.py` | Mandi price fetch scheduler (start/stop, retries, cleanup) | 12 |
+| Test File | What It Covers |
+|-----------|---------------|
+| `test_tool_selection.py` | Tool definition structure, dispatch routing, error wrapping |
+| `test_mandi_entity_extraction.py` | Mandi argument handling, output formatting, edge cases |
+| `test_disease_parsing.py` | Parsing mock [GPT-4o](https://platform.openai.com/docs/models) responses into `DiseaseDetectionResult` |
+| `test_schemas.py` | [Pydantic](https://docs.pydantic.dev/) schema validation across all subsystems |
+| `test_config.py` | Settings defaults, env overrides, caching |
+| `test_pdf.py` | PDF-to-chunk pipeline (sections, tables, scheme names, content types, hierarchy) |
+| `test_session.py` | Session CRUD, message trimming, LLM message formatting |
+| `test_mandi_repository.py` | Mandi price repository (upsert, filter, freshness, cleanup) |
+| `test_mandi_scheduler.py` | Mandi price fetch scheduler (start/stop, retries, cleanup) |
 
 ### Integration Tests
 
@@ -188,8 +188,6 @@ Uses LLM-as-judge to evaluate whether the generated answer is faithful, relevant
 uv run pytest tests/evaluation/test_scheme_generation.py -m eval -v -s
 ```
 
-**Cost estimate:** ~29 non-adversarial cases x 3 metrics x 1 GPT-4o judge call = ~87 LLM calls (~$0.87 per run)
-
 ---
 
 ## Phase 4: End-to-End Agent
@@ -229,8 +227,6 @@ The dataset lives at `tests/evaluation/data/agent_scenarios.json` and contains 1
 | `adversarial` | 1 | Off-topic / injection attempts |
 
 </details>
-
-**Cost estimate:** ~15 scenarios x ~2 LLM calls each = ~30 GPT-4o calls (~$0.90 per run)
 
 ---
 

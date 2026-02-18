@@ -72,9 +72,12 @@ docker run -d -p 6333:6333 qdrant/qdrant
 ```bash
 # Place PDF files in data/schemes/, then:
 uv run python scripts/index_schemes.py
+
+# Force re-index all PDFs (replaces existing chunks):
+uv run python scripts/index_schemes.py --force
 ```
 
-> **Note:** Scheme PDFs are not included in the repository. You must supply your own PDF documents in `data/schemes/` before indexing.
+> **Note:** Scheme PDFs are not included in the repository. You must supply your own PDF documents in `data/schemes/` before indexing. The script automatically skips PDFs that are already indexed — use `--force` to re-index everything.
 
 ### 5. Run the API server
 
@@ -98,8 +101,126 @@ uv run streamlit run ui/app.py
 | `POST` | `/api/v1/chat` | Send a message (text and/or image) |
 | `GET` | `/api/v1/sessions/{session_id}` | Get conversation history |
 | `DELETE` | `/api/v1/sessions/{session_id}` | Delete a session |
+| `POST` | `/api/v1/search/chunks` | Search scheme chunks with metadata and similarity scores |
 
 Interactive docs available at [http://localhost:8080/docs](http://localhost:8080/docs) when the server is running.
+
+<details>
+<summary><strong>Chunk Search Examples</strong></summary>
+
+The `/api/v1/search/chunks` endpoint returns raw retrieved chunks without LLM answer generation. This is useful for debugging retrieval quality and building custom UIs on top of the indexed data.
+
+> **Note:** Documents must be indexed first (see step 4 in Quick Start above).
+
+**Basic query:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/search/chunks \
+  -H "Content-Type: application/json" \
+  -d '{"query": "crop insurance premium subsidy"}'
+```
+
+**Limit results with top_k:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/search/chunks \
+  -H "Content-Type: application/json" \
+  -d '{"query": "crop insurance premium subsidy", "top_k": 3}'
+```
+
+**Filter by scheme name:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/search/chunks \
+  -H "Content-Type: application/json" \
+  -d '{"query": "premium subsidy", "scheme_name": "PMFBY"}'
+```
+
+**Filter by section header:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/search/chunks \
+  -H "Content-Type: application/json" \
+  -d '{"query": "who can apply", "section_header": "Eligibility Criteria"}'
+```
+
+**Response fields:**
+
+| Field | Description |
+|-------|-------------|
+| `content` | The text content of the chunk |
+| `source` | Source PDF filename |
+| `score` | Similarity score (higher is more relevant) |
+| `scheme_name` | Name of the government scheme |
+| `section_header` | Section heading the chunk belongs to |
+| `section_hierarchy` | Full hierarchy of section headings |
+| `content_type` | Type of content (e.g. text, table) |
+| `page_numbers` | Page numbers in the source PDF |
+
+</details>
+
+<details>
+<summary><strong>Chat Query Examples</strong></summary>
+
+The `/api/v1/chat` endpoint uses an LLM-powered query analysis pipeline that rewrites queries, decomposes multi-part questions, and extracts metadata filters automatically. Here are sample queries to test different capabilities:
+
+**Simple single-scheme query:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is PM-KISAN?"}'
+```
+
+**Targeted section query** (triggers `section_header` filter extraction):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What documents are needed to apply for KCC?"}'
+```
+
+**Multi-part question** (triggers sub-query decomposition):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is the eligibility and benefit amount of PM-KISAN?"}'
+```
+
+**Cross-scheme comparison** (triggers multiple sub-queries):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Compare the premium rates of PMFBY and the interest subvention under KCC"}'
+```
+
+**Colloquial / Hinglish query** (tests query rewriting):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "mujhe fasal bima ke liye kaise apply karna hai?"}'
+```
+
+**Broad exploratory query** (no specific scheme, tests rewriting without filters):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Which government schemes provide subsidies for irrigation equipment?"}'
+```
+
+**Specific + complex** (triggers scheme filter + section filter + rewriting):
+
+```bash
+curl -X POST http://localhost:8080/api/v1/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is the funding pattern between central and state governments for RKVY?"}'
+```
+
+</details>
 
 ## Project Structure
 
@@ -124,7 +245,10 @@ src/kisan/
 │   └── schemes/            #   Scheme RAG (embeddings, indexer, retriever)
 ├── schemas/                # Pydantic models (chat, disease, mandi, scheme)
 ├── services/               # Infrastructure services (LLM, session, vectordb, database)
-└── utils/                  # Utilities (PDF processing)
+└── utils/                  # Utilities
+    ├── pdf.py              #   High-level PDF-to-chunks pipeline
+    ├── pdf_parser.py       #   Docling PDF → Markdown conversion
+    └── chunker.py          #   Token-aware Markdown chunking
 ```
 
 ## Deployment
@@ -203,9 +327,13 @@ QDRANT_URL="https://your-cluster.cloud.qdrant.io" \
 QDRANT_API_KEY="your-qdrant-cloud-api-key" \
 QDRANT_COLLECTION="kisan_schemes" \
 uv run python scripts/index_schemes.py
+
+# 3. To re-index after updating a PDF, just run again — only new/changed PDFs are processed
+#    Use --force to re-index all PDFs from scratch
+uv run python scripts/index_schemes.py --force
 ```
 
-Use the same `QDRANT_URL`, `QDRANT_API_KEY`, and `QDRANT_COLLECTION` values you configured on Render. The script generates embeddings via OpenAI and uploads them directly to Qdrant Cloud. Once complete, the deployed app can serve scheme queries immediately.
+Use the same `QDRANT_URL`, `QDRANT_API_KEY`, and `QDRANT_COLLECTION` values you configured on Render. The script generates embeddings via OpenAI and uploads them directly to Qdrant Cloud. Already-indexed PDFs are skipped unless `--force` is used. Once complete, the deployed app can serve scheme queries immediately.
 
 </details>
 
@@ -237,7 +365,8 @@ See [TESTING.md](TESTING.md) for the full testing and evaluation guide.
 | LLM | [OpenAI GPT-4o](https://platform.openai.com/docs/) (text + vision) |
 | Embeddings | [OpenAI Embeddings](https://platform.openai.com/docs/guides/embeddings) |
 | Vector Database | [Qdrant](https://qdrant.tech/) |
-| PDF Processing | [PyMuPDF](https://pymupdf.readthedocs.io/) |
+| PDF Processing | [Docling](https://github.com/DS4SD/docling) (structure-aware), [PyMuPDF](https://pymupdf.readthedocs.io/) (fallback) |
+| Token Counting | [tiktoken](https://github.com/openai/tiktoken) |
 | Market Data | [data.gov.in API](https://data.gov.in/) |
 | Evaluation | [DeepEval](https://docs.confident-ai.com/) |
 | Database | [PostgreSQL](https://www.postgresql.org/) ([asyncpg](https://magicstack.github.io/asyncpg/)) |
