@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from kisan.api.routes import chat, health
+from kisan.api.routes import chat, health, search
 from kisan.core.config import get_settings
 from kisan.core.logging import logger, setup_logging
 from kisan.modules.mandi.repository import MandiPriceRepository
@@ -80,3 +80,4 @@ app.add_middleware(
 # Include routers
 app.include_router(health.router, tags=["Health"])
 app.include_router(chat.router, prefix="/api/v1", tags=["Chat"])
+app.include_router(search.router, prefix="/api/v1", tags=["Search"])
