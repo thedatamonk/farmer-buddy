@@ -22,6 +22,8 @@ dependencies = [
 
     # PDF Processing
     "pymupdf>=1.23.0",
+    "docling>=2.0.0",
+    "tiktoken>=0.7.0",
 
     # HTTP Client
     "httpx>=0.26.0",
