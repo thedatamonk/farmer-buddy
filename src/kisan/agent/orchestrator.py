@@ -174,7 +174,7 @@ class AgentOrchestrator:
             response = await self.llm.chat(
                 messages=messages,
                 tools=TOOL_DEFINITIONS,
-                temperature=0.7,
+                temperature=0.3,
             )
 
             content = response.get("content")
@@ -228,5 +228,5 @@ class AgentOrchestrator:
 
         # If we hit max iterations, get a final response
         logger.warning("Max tool iterations reached, getting final response")
-        response = await self.llm.chat(messages=messages, temperature=0.7)
+        response = await self.llm.chat(messages=messages, temperature=0.3)
         return response.get("content") or "I apologize, I had trouble processing that request."
