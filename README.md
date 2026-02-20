@@ -1,6 +1,6 @@
 <div align="center">
 
-# Project Kisan
+# Terras
 
 **AI-powered agricultural assistant for Indian farmers**
 
